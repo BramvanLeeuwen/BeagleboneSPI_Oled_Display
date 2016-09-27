@@ -18,7 +18,8 @@ namespace exploringBB {
  * for multiple rows and columns and provides methods for formatting and printing text. You
  * should use a 4 wire interface and a 74XX595 to communicate with the display module.
  */
-
+#define DEGREE_EUR_FONT 	0b10110010
+	
 class LCDCharacterDisplay {
 
 private:
