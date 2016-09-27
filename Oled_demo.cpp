@@ -14,6 +14,16 @@ int main(){
    display.home();                    // Move the cursor to the (0,0) position
    display.print("OLEDDisplay van Bram"); // String to display on the first row
    display.setCursorPosition(1,3); // move the cursor to second row
+   display.setCursorPosition(0,0);
+   display.print("21,3");
+   display.setCursorPosition(0,4);
+   display.write(DEGREE_EUR_FONT);
+   display.write('C');
+         display.print(" (Str 23,6");
+         display.write(0b10110010);display.write('C');;display.write(')');
+         display.setCursorPosition(1,0);
+         display.print("di 31 aug 2016 20:13");
+         display.setCursorPosition(1,3); // move the cursor to second row
    display.setCursorOff(false); // move the cursor to second row
   /*for (int r=0;r<4;r++)
    {  for (int c=0;c<20;c++)
