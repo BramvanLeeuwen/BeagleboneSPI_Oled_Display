@@ -11,7 +11,7 @@
  * Made available for the book "Exploring BeagleBone"
  * See: www.exploringbeaglebone.com
  * Licensed under the EUPL V.1.1
- *
+ * Adapted by Bram van Leeuwen for connection with Newhaven Oled display with parallel input
  * This Software is provided to You under the terms of the European
  * Union Public License (the "EUPL") version 1.1 as published by the
  * European Union. Any use of this Software, other than as authorized
@@ -28,6 +28,7 @@
  *
  * For more details, see http://www.derekmolloy.ie/
  */
+
 
 #include "CharacterDisplay.h"
 #include <unistd.h>
@@ -46,6 +47,8 @@
     #define CURSOR_DISPLAY_SC   0b00001000
 	#define CURSOR_DISPLAY_RL   0b00000100
 #define LCD_FUNCTION_SET     	0b00100000
+#define LCD_4BYTES_SET     	    0b00101000
+#define LCD_WESTERN_EUR_FONT   	0b00100011
 #define LCD_CGRAM_ADDR			0b01000000
 #define LCD_DDRAM_ADDR			0b10000000
 
@@ -65,7 +68,7 @@
 // write set
 // E operation enable signal (falling edge triggered)
 
-namespace exploringBB {
+namespace SPIBus_Device {
 
 /***
  * Constructor for the display. Needs an SPIDevice pointer and the number of characters
@@ -121,59 +124,24 @@ void LCDCharacterDisplay::command(char i){
  * turns on the display and sets entry mode.
  */
 void LCDCharacterDisplay::setup4bit(){
-	/*this->device->write(0x32);  //Manual write of Wake up!(first)
-	usleep(LCD_LONG_DELAY);     //Sleep for at least 5ms
-	this->device->write(0x30);  //Toggle the E bit, sends on falling edge
-	usleep(LCD_SHORT_DELAY);    //Sleep for at least 160us
-	this->device->write(0x32);  //Manual write of Wake up! (second)
-	usleep(LCD_SHORT_DELAY);
-	this->device->write(0x30);
-	usleep(LCD_SHORT_DELAY);
-	this->device->write(0x32);  //Manual write of Wake up! (third)
-	usleep(LCD_SHORT_DELAY);
-	this->device->write(0x30);
-	usleep(LCD_SHORT_DELAY);
-	this->device->write(0x22);  //Set 4-bit mode
-	usleep(LCD_SHORT_DELAY);
-	this->device->write(0x20);
-	usleep(LCD_SHORT_DELAY);
-	this->command(0x28);        //Set 4-bit/2-line*/
-
-
-	//this->device->write(0x22);  //Manual write of Wake up!(first)
-	//	usleep(LCD_LONG_DELAY);     //Sleep for at least 5ms
-	//	this->device->write(0x20);  //Toggle the E bit, sends on falling edge
-	//	usleep(LCD_SHORT_DELAY);    //Sleep for at least 160us
-	//	this->device->write(0x22);  //Manual write of Wake up! (second)
-	//this->device->write(0x22);  //Manual write of Wake up!(first)
-	//	usleep(LCD_LONG_DELAY);     //Sleep for at least 5ms
-	//	this->device->write(0x20);  //Toggle the E bit, sends on falling edge
-	//	usleep(LCD_SHORT_DELAY);    //Sleep for at least 160us
-
-	/*this->device->write(0x22);  //Manual write of Wake up!(first)  //data length 4  bit
-		usleep(LCD_LONG_DELAY);     //Sleep for at least 5ms
-		this->device->write(0x20);  //Toggle the E bit, sends on falling edge
-		usleep(LCD_SHORT_DELAY);    //Sleep for at least 160us
-		this->device->write(0x22);  //Manual write of Wake up! (second)*/
-
-
 	this->device->write(0x22);  //Manual write of Wake up!(first)  //data length 4  bit
-	//usleep(LCD_LONG_DELAY);     //Sleep for at least 5ms
 	this->device->write(0x20);  //Toggle the E bit, sends on falling edge
-	//usleep(LCD_SHORT_DELAY);    //Sleep for at least 160us
 	this->device->write(0x22);  //Manual write of Wake up! (second)
-	//usleep(LCD_SHORT_DELAY);
 	this->device->write(0x20);
-	//usleep(LCD_SHORT_DELAY);
-	//this->device->write(0x82);  //Manual write of Wake up! (third)  //font table 0
 	this->device->write(0x82);  //Manual write of Wake up! (third)  //font table 2
-	//usleep(LCD_SHORT_DELAY);
 	this->device->write(0x80);
-	//usleep(LCD_SHORT_DELAY);
+	this->device->write(0x32);  //to 8 bits  to align to the first nibble in case of a out of nibble start at the second nibble
+	this->device->write(0x30);
+	this->device->write(0x82);  //to 8 bits second nibble
+	this->device->write(0x80);
+	this->device->write(0x22);  //and back to four bits
+	this->device->write(0x20);
+
 	command(0b00001000);//Display Off
 	command(0b00000001);//Display Clear
 	command(0b00000010);//Home
 	command(0b00001100);//Display On Cursor on
+	command(LCD_4BYTES_SET | LCD_WESTERN_EUR_FONT);
 
 
 	// Default Cursor, Display and Entry states set in the constructor
